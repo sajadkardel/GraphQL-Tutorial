@@ -10,7 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQL.Server;
+using GraphQL.Server.Ui.Playground;
 using GraphQL.Server_Tutorial.Context;
+using GraphQL.Server_Tutorial.GraphQL.GraphQLSchema;
 using GraphQL.Server_Tutorial.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +38,11 @@ namespace GraphQL.Server_Tutorial
 
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
+
+            services.AddScoped<AppSchema>();
+            services.AddGraphQL()
+                .AddSystemTextJson()
+                .AddGraphTypes(typeof(AppSchema), ServiceLifetime.Scoped);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +57,10 @@ namespace GraphQL.Server_Tutorial
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
+
+            app.UseGraphQL<AppSchema>();
+            app.UseGraphQLPlayground(options: new PlaygroundOptions());
 
             app.UseEndpoints(endpoints =>
             {
